@@ -1,0 +1,37 @@
+References to other data definitions
+Some data definitions contain references to other data definitions you have defined (non-primitive data definitions). One common case is for a compound data definition to comprise other named data definitions. (Or, once lists are introduced, for a list to contain elements that are described by another data definition. In these cases the template of the first data definition should contain calls to the second data definition's template function wherever the second data appears. For example:
+
+---assume Ball is as defined above---
+
+(define-struct game (ball score))
+;; Game is (make-game Ball Number) 
+
+;; interp. the current ball and score of the game
+
+(define GAME-1 (make-game (make-ball 1 5) 2))
+
+#;
+(define (fn-for-game g)
+  (... (fn-for-ball (game-ball g))
+       (game-score g)))      ;Number
+;; Template rules used:
+;;  - compound: 2 fields
+;;  - reference: ball field is Ball
+In this case the template is formed according to the Data Driven Templates recipe by first using the compound rule. Then, since the result type of (game-ball g) is Ball, the reference rule is used to wrap the selector so that it becomes (fn-for-ball (game-ball g)). The call to game-score is not wrapped because it produces a primitive type.
+
+Guidance on Data Examples and Function Example/Tests
+For data definitions involving references to non-primitive types the data examples can sometimes become quite long. In these cases it can be helpful to define well-named constants for data examples for the referred to type and then use those constants in the referring from type. For example:
+
+...in the data definition for Drop...
+(define DTOP (make-drop 10 0))            ;top of screen
+(define DMID (make-drop 20 (/ HEIGHT 2))) ;middle of screen
+(define DBOT (make-drop 30 HEIGHT))       ;at bottom edge
+(define DOUT (make-drop 40 (+ HEIGHT 1))) ;past bottom edge
+
+...in the data definition for ListOfDrop...
+(define LOD1 empty)
+(define LOD-ALL-ON             (cons DTOP (cons DMID )))
+(define LOD-ONE-ABOUT-TO-LEAVE (cons DTOP (cons DMID (cons DBOT empty))))
+(define LOD-ONE-OUT-ALREADY    (cons DTOP (cons DMID (cons DBOT (cons DOUT empty)))))
+In the case of references to non-primitive types the function operating on the referring type (i.e. ListOfDrop) will end up with a call to a helper that operates on the referred to type (i.e. Drop). Tests on the helper function should fully test that function, tests on the calling function may assume the helper function works properly.
+

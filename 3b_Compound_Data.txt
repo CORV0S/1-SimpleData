@@ -1,0 +1,20 @@
+Compound data (structures)
+Use structures when two or more values naturally belong together. The define-struct goes at the beginning of the data definition, before the types comment.
+
+(define-struct ball (x y))
+;; Ball is (make-ball Number Number)
+;; interp. a ball at position x, y 
+
+(define BALL-1 (make-ball 6 10))
+
+#;
+(define (fn-for-ball b)
+  (... (ball-x b)     ;Number
+       (ball-y b)))   ;Number
+;; Template rules used:
+;;  - compound: 2 fields
+The template above is formed according to the Data Driven Templates recipe using the compound rule. Then for each of the selectors, the result type of the selector (Number in the case of ball-x and ball-y) is used to decide whether the selector call itself should be wrapped in another expression. In this case, where the result types are primitive, no additional wrapping occurs. C.f. cases below when the reference rule applies.
+
+Guidance on Data Examples and Function Example/Tests
+For compound data definitions it is often useful to have numerous examples, for example to illustrate special cases. For a snake in a snake game you might have an example where the snake is very short, very long, hitting the edge of a box, touching food etc. These data examples can also be useful for writing function tests because they save space in each check-expect.
+
